@@ -1,0 +1,168 @@
+#*************************************************************************************************
+#	Author: Derek Yee
+#	
+#      
+#**************************************************************************************************
+#================================================================================================================================================================
+.data											#data portion, store variables and messages
+introMessage: .asciiz " Welcome to the shape calculator \n" 
+menu: .asciiz" Please select the integer corresponding to the option you would like to choose.\n 1) Area of circle \n 2) Circumference of Circle \n 3) Area of rectangle \n 4) Perimeter of Rectangle \n 5) Exit \n" 
+areaCircMessage: .asciiz" Selected to calculate area of circle.\n" 
+cirCumfMessage: .asciiz "Selected to find the circumference of a circle.\n" 
+areaRectMessage: .asciiz " Selected to find area of reactangle.\n " 
+perimRectMessage: .asciiz" Selected to find perimeter of rectangle. \n " 
+errorMessage:  .asciiz" The input selected is not valid. \n"  
+exitMessage: .asciiz" Selected to quit."
+getRadius: .asciiz " Please enter the radius of the circle with decimal points. \n" 
+getLength: .asciiz "Please enter the length of the rectangle with decimal points. \n"
+getWidth: .asciiz "Please enter the width of the rectangle with decimal points. \n" 
+answer: "The result is: "
+units: " units squared  \n" 
+unit:" units \n" 
+newLine: "\n"
+pi: .float 3.14159    
+two: .float 2.0  
+twoD: .double 2.0
+#================================================================================================================================================================
+.text
+la $a0,introMessage                                         				#load intro message
+li $v0,4
+syscall
+loopMenu:
+la $a0,menu										#load menu 
+li $v0,4
+syscall
+li $v0,5                                                                                #syscall code to read in integer
+syscall
+addi $t0,$v0,0                                                                          #move input into $t0 
+beq $t0,1,optionOne
+beq $t0,2,optionTwo
+beq $t0,3,optionThree
+beq $t0,4,optionFour
+beq $t0,5,optionFive 
+j error
+#===============================================
+optionOne: 
+li $v0,4
+la $a0,areaCircMessage                                					#print option 1 selected
+syscall
+la $a0, getRadius  									#prompt user for radius
+syscall
+li $v0, 6
+syscall  						                         	#$f0=inputted radius
+mul.s $f0,$f0,$f0                                                                       #radius squared
+l.s $f1, pi 
+mul.s $f0,$f0,$f1			  						# pi(radius squared)
+li $v0, 4                        							#print result
+la $a0,answer
+syscall
+li $v0,2
+mov.s $f12,$f0 
+syscall
+li $v0,4
+la $a0,units
+syscall
+la $a0,newLine
+syscall
+j loopMenu                								#go back to menu
+#===============================================
+#===============================================
+optionTwo:
+li $v0,4
+la $a0,cirCumfMessage									#print option 2 selected
+syscall
+la $a0,getRadius
+syscall
+li $v0,6                 								#get radius from user
+syscall
+l.s $f2,two
+mul.s $f0,$f2,$f0            								#double radius
+l.s $f2, pi
+mul.s $f0,$f0,$f2									#2r *pi
+li $v0,4										#printing results
+la $a0,answer
+syscall
+li $v0,2				
+mov.s $f12,$f0
+syscall					
+li $v0,4
+la $a0,unit
+syscall
+la $a0,newLine
+syscall
+j loopMenu										#returning back to menu
+#===============================================
+#===============================================
+optionThree: 
+li $v0,4
+la $a0,areaRectMessage
+syscall
+la $a0,getLength
+syscall
+li $v0,7										#get length of rectangle (as a double) 
+syscall
+mov.d $f2,$f0 											#stored in $f2, doubles take up two resgisters
+li $v0,4
+la $a0,getWidth											
+syscall
+li $v0,7										#get width of the reactangle stored in $f0 
+syscall
+mul.d $f0,$f0,$f2										#multiply length * width
+li $v0,4
+la $a0,answer
+syscall 
+li $v0,3
+mov.d $f12,$f0
+syscall
+li $v0,4
+la $a0,units
+syscall
+la $a0,newLine
+syscall
+j loopMenu 
+#===============================================
+#===============================================
+optionFour: 
+li $v0,4
+la $a0,perimRectMessage 								#print option 4 selected
+syscall
+la $a0,getLength									#getting length of rectangle
+syscall
+li $v0,7
+syscall
+mov.d $f2,$f0										#move to $f2
+li $v0,4
+la $a0,getWidth
+syscall
+li $v0,7
+syscall
+l.d $f4, twoD
+mul.d $f0,$f0,$f4									#double width
+mul.d $f2,$f2,$f4									#double length
+add.d $f0,$f0,$f2     									# 2l + 2w =perimeter of rectangle
+li $v0,4
+la $a0,answer
+syscall
+li $v0,3
+mov.d $f12,$f0
+syscall
+li $v0,4
+la $a0,unit
+syscall
+la $a0,newLine
+syscall
+j loopMenu
+#===============================================
+#===============================================
+optionFive: 
+li $v0,4
+la $a0,exitMessage									#print exit message
+syscall
+li $v0,10										#exit code
+syscall
+error:
+li $v0,4
+la $a0,errorMessage
+syscall
+j loopMenu
+#===============================================
